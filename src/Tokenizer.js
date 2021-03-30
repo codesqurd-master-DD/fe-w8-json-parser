@@ -1,17 +1,17 @@
+const { DIVIDER } = require("./type.js");
 const tokenizer = (str) => {
   const result = [];
   let stack = "";
   let isString = false;
 
-  const seperator = ["{", "}", "[", "]", ":", ",", "+", "-"];
   for (let i = 0; i < str.length; i++) {
     const char = str[i];
-    if (seperator.includes(char)) {
+    if (DIVIDER.includes(char)) {
       if (isString) {
         stack += char;
       } else {
         stack.length > 0 ? result.push(stack) : "";
-        result.push(char);
+        char !== "," ? result.push(char) : "";
         stack = "";
       }
     } else {
@@ -23,9 +23,11 @@ const tokenizer = (str) => {
       stack += char;
     }
   }
-  console.log(result);
+  return result;
 };
 
-tokenizer(
-  "['1a3',[12+'a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
-);
+module.exports = tokenizer;
+
+// tokenizer(
+//   "['1a3',[12+'a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
+// );
