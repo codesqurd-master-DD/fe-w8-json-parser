@@ -1,4 +1,4 @@
-const { seperator } = require("./type.js");
+const { DIVIDER } = require("./type.js");
 const tokenizer = (str) => {
   const result = [];
   let stack = "";
@@ -6,7 +6,7 @@ const tokenizer = (str) => {
 
   for (let i = 0; i < str.length; i++) {
     const char = str[i];
-    if (seperator.includes(char)) {
+    if (DIVIDER.includes(char)) {
       if (isString) {
         stack += char;
       } else {
@@ -23,7 +23,6 @@ const tokenizer = (str) => {
       stack += char;
     }
   }
-  console.log(result);
   return result;
 };
 
