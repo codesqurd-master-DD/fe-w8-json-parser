@@ -1,11 +1,12 @@
+const { Parser } = require("webpack");
 const tokenizer = require("./Tokenizer.js");
-const { SEPERATOR, OPERATOR, LITERAL } = require("./type.js");
+const { SEPERATOR, OPERATOR, BOOLEAN } = require("./type.js");
 const getSubType = {
-  "[": "openArray",
-  "]": "closeArray",
-  "{": "openObject",
-  "}": "closeObject",
-  ":": ":이 나왔다?",
+  "[": "open",
+  "{": "open",
+  "]": "close",
+  "}": "close",
+  ":": "prop",
 };
 
 const lexer = (str) => {
@@ -14,6 +15,7 @@ const lexer = (str) => {
 };
 const classifyToken = (token) => {
   const type = getTokenType(token);
+
   return {
     type,
     value: token,
@@ -28,34 +30,77 @@ const getTokenType = (token) => {
   if (OPERATOR.includes(token)) {
     return "operator";
   }
-  if (/[a-zA-Z]/.test(token)) {
-    return "identifer";
+  if (BOOLEAN.includes(token)) {
+    return "boolean";
   }
-  if (LITERAL.includes(token) || /^'.+'$/g.test(token)) {
-    return "literal";
+  if (/^'.+'$/g.test(token)) {
+    return "string";
+  }
+  if (/[a-zA-Z]/.test(token)) {
+    return "identifier";
   }
   if (/[0-9]/.test(token)) {
     return "number";
   }
+  if (token === "null") {
+    return "object";
+  }
+  if (token === "undefined") {
+    return "undefined";
+  }
 };
-const list = lexer(
-  "[value, '1a3',[12+'a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
-);
 
-function parse(list, parentNode = { type: "Directory", child: [] }) {
+const list = lexer(
+  "['1a3',['a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
+);
+// const list = lexer("[{'a': 'str'}, {'b': [1,2,3]}]");
+function parse(list, openType = "array") {
+  const parentNode = { type: openType, child: [] };
   for (let i = 0; i < list.length; i++) {
-    const el = list[i];
-    if (el === "dirstart") {
-      const [dir, j] = parse(list.slice(i + 1));
+    const { type, value, subType } = list[i];
+    if (!subType && openType === "array") {
+      parentNode.child.push({ type, value });
+    } else if (subType === "prop") {
+      const { type: type1, value: value1 } = list[i - 1];
+      const { type: type2, value: value2, subType } = list[i + 1];
+
+      let propValue;
+      if (!subType) {
+        propValue = {
+          type: type2,
+          value: value2,
+        };
+      } else {
+        const [dir, j] = parse(
+          list.slice(i + 2),
+          value2 === "{" ? "object" : "array"
+        );
+        i += j + 1;
+        propValue = dir;
+      }
+      parentNode.child.push({
+        type: "objectProperty",
+        value: {
+          propKey: {
+            value: value1,
+            type: type1,
+          },
+          propValue,
+        },
+      });
+    } else if (subType === "open") {
+      const [dir, j] = parse(
+        list.slice(i + 1),
+        value === "{" ? "object" : "array"
+      );
       parentNode.child.push(dir);
       i += j + 1;
-    } else if (el === "dirend") {
+    } else if (subType === "close") {
+      console.log(i, list.length);
       return [parentNode, i];
-    } else {
-      parentNode.child.push({ type: "file", value: el });
     }
   }
+  console.log("실행 안 됨");
   return parentNode;
 }
-
-console.log(JSON.stringify(parse(list), null, 2));
+console.log(parse(list));

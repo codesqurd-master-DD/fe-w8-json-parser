@@ -1,6 +1,7 @@
 const DIVIDER = ["{", "}", "[", "]", ":", ",", "+", "-"];
+
 const SEPERATOR = ["{", "}", "[", "]", ":"];
 const OPERATOR = ["+", "-", "*", "/", "**"];
-const LITERAL = ["true", "false", "NULL", "undefined"];
+const BOOLEAN = ["true", "false"];
 
-module.exports = { DIVIDER, SEPERATOR, OPERATOR, LITERAL };
+module.exports = { DIVIDER, SEPERATOR, OPERATOR, BOOLEAN };
