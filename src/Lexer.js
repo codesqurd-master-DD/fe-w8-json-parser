@@ -26,6 +26,7 @@ const classifyToken = (token, index, array) => {
     flag,
     index,
   };
+
 };
 
 const getTokenType = (token) => {
@@ -35,6 +36,7 @@ const getTokenType = (token) => {
   if (OPERATOR.includes(token)) {
     return "operator";
   }
+
   if (BOOLEAN.includes(token)) {
     return "boolean";
   }
@@ -43,6 +45,7 @@ const getTokenType = (token) => {
   }
   if (/[a-zA-Z]/.test(token)) {
     return "identifier";
+
   }
   if (/[0-9]/.test(token)) {
     return "number";
