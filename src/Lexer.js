@@ -1,4 +1,5 @@
-const { Parser } = require("webpack");
+
+
 const tokenizer = require("./Tokenizer.js");
 const { SEPERATOR, OPERATOR, BOOLEAN } = require("./type.js");
 const getSubType = {
@@ -21,6 +22,7 @@ const classifyToken = (token) => {
     value: token,
     subType: type === "seperator" ? getSubType[token] : null,
   };
+
 };
 
 const getTokenType = (token) => {
@@ -30,6 +32,7 @@ const getTokenType = (token) => {
   if (OPERATOR.includes(token)) {
     return "operator";
   }
+
   if (BOOLEAN.includes(token)) {
     return "boolean";
   }
@@ -38,6 +41,7 @@ const getTokenType = (token) => {
   }
   if (/[a-zA-Z]/.test(token)) {
     return "identifier";
+
   }
   if (/[0-9]/.test(token)) {
     return "number";
@@ -104,3 +108,4 @@ function parse(list, openType = "array") {
   return parentNode;
 }
 console.log(parse(list));
+
