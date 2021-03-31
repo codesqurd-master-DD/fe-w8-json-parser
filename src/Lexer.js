@@ -1,4 +1,3 @@
-const { Parser } = require("webpack");
 const tokenizer = require("./Tokenizer.js");
 const { SEPERATOR, OPERATOR, BOOLEAN } = require("./type.js");
 const getSubType = {
@@ -9,17 +8,23 @@ const getSubType = {
   ":": "prop",
 };
 
-const lexer = (str) => {
-  const tokens = tokenizer(str);
+const lexer = (tokens) => {
   return tokens.map(classifyToken);
 };
-const classifyToken = (token) => {
+const classifyToken = (token, index, array) => {
+  let flag = null;
+  if (index === 0) {
+    flag = "start";
+  } else if (index === array.length - 1) {
+    flag = "end";
+  }
   const type = getTokenType(token);
-
   return {
     type,
     value: token,
     subType: type === "seperator" ? getSubType[token] : null,
+    flag,
+    index,
   };
 };
 
@@ -50,14 +55,18 @@ const getTokenType = (token) => {
   }
 };
 
-const list = lexer(
-  "['1a3',['a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
-);
 // const list = lexer("[{'a': 'str'}, {'b': [1,2,3]}]");
-function parse(list, openType = "array") {
+function parse(list) {
+  // const opener = list.shift().value;
+  const opener = list[0].value;
+  list = list.slice(1);
+  if (!["[", "{"].includes(opener)) throw new Error("not array");
+
+  const openType = opener === "{" ? "object" : "array";
   const parentNode = { type: openType, child: [] };
+
   for (let i = 0; i < list.length; i++) {
-    const { type, value, subType } = list[i];
+    const { type, value, subType, flag } = list[i];
     if (!subType && openType === "array") {
       parentNode.child.push({ type, value });
     } else if (subType === "prop") {
@@ -72,7 +81,7 @@ function parse(list, openType = "array") {
         };
       } else {
         const [dir, j] = parse(
-          list.slice(i + 2),
+          list.slice(i + 1),
           value2 === "{" ? "object" : "array"
         );
         i += j + 1;
@@ -89,18 +98,14 @@ function parse(list, openType = "array") {
         },
       });
     } else if (subType === "open") {
-      const [dir, j] = parse(
-        list.slice(i + 1),
-        value === "{" ? "object" : "array"
-      );
+      const [dir, j] = parse(list.slice(i));
       parentNode.child.push(dir);
       i += j + 1;
     } else if (subType === "close") {
-      console.log(i, list.length);
       return [parentNode, i];
     }
   }
-  console.log("실행 안 됨");
   return parentNode;
 }
-console.log(parse(list));
+
+module.exports = lexer;
