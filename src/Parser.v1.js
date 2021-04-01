@@ -17,54 +17,40 @@ const parser = (list) => {
   const parentNode = { type: openType, child: [] };
   let prev = [];
   while (list.length > 0) {
-    const token = list.shift();
-    const { subType } = token;
-
-    if (isOpen(subType)) {
-      list.unshift(token);
-      parentNode.child.push(parser(list));
-      continue;
-    }
-    if (isClose(subType)) {
+    const { type, value, subType } = list[0];
+    if (isOpen(subType)) parentNode.child.push(parser(list));
+    else if (isClose(subType)) {
+      list.shift();
       return parentNode;
-    }
-    if (isArray(openType)) {
-      parentNode.child.push(getElementSet(token));
-      continue;
-    }
-    if (isObject(openType)) {
-      let objSet = setObjectProperty();
-      if (prev.length === 0) {
-        prev.push(token);
-        continue;
-      }
-      if (isColon(subType)) {
-        objSet.value.propKey = createPropKey(prev);
+    } else {
+      if (isObject(openType)) {
+        let objSet = setObjectProperty();
+        if (prev.length === 0) {
+          prev.push(list.shift());
+        } else if (isColon(subType)) {
+          const key = prev.pop();
+          objSet.value.propKey = { type: key.type, value: key.value };
+          list.shift();
+          const { type, value, subType } = list[0];
 
-        const token = list.shift();
-        const { subType } = token;
-        objSet.value.propValue = createPropValue(subType, list, token);
+          if (subType) {
+            objSet.value.propValue = parser(list);
+          }
 
-        parentNode.child.push(objSet);
+          if (subType === null) {
+            objSet.value.propValue = { type, value };
+            list.shift();
+          }
+          parentNode.child.push(objSet);
+        }
+      } else if (isArray(openType)) {
+        parentNode.child.push({ type, value });
+        list.shift();
       }
     }
   }
 };
-const getElementSet = ({ type, value }) => {
-  return { type, value };
-};
-const createPropKey = (prev) => {
-  const key = prev.pop();
-  return getElementSet(key);
-};
-const createPropValue = (subType, list, token) => {
-  if (subType) {
-    list.unshift(token);
-    return parser(list);
-  } else {
-    return getElementSet(token);
-  }
-};
+
 const isOpen = (subType) => {
   return subType === "open";
 };
@@ -80,6 +66,7 @@ const isObject = (openType) => {
 const isArray = (openType) => {
   return openType === "array";
 };
+
 const setObjectProperty = () => {
   return {
     type: "objectProperty",
