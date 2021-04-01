@@ -1,14 +1,25 @@
-const tokenizer = require("./Tokenizer.js");
-const { SEPERATOR, OPERATOR, LITERAL } = require("./type.js");
+const SEPERATOR = ["{", "}", "[", "]", ":"];
+const OPERATOR = ["+", "-", "*", "/", "**"];
+const BOOLEAN = ["true", "false"];
 
-const lexer = (str) => {
-  const tokens = tokenizer(str);
-  const result = tokens.map(classifyToken);
-  console.log(result);
+const subTypeSet = {
+  "[": "open",
+  "{": "open",
+  "]": "close",
+  "}": "close",
+  ":": "colon",
+};
+
+const lexer = (tokens) => {
+  return tokens.map(classifyToken);
 };
 const classifyToken = (token) => {
   const type = getTokenType(token);
-  return { [token]: type };
+  return {
+    type,
+    value: token,
+    subType: type === "seperator" ? subTypeSet[token] : null,
+  };
 };
 
 const getTokenType = (token) => {
@@ -18,16 +29,24 @@ const getTokenType = (token) => {
   if (OPERATOR.includes(token)) {
     return "operator";
   }
-  if (LITERAL.includes(token) || /^'.+'$/g.test(token)) {
-    return "literal";
+  if (BOOLEAN.includes(token)) {
+    return "boolean";
+  }
+  if (/^'.+'$/g.test(token)) {
+    return "string";
+  }
+  if (/[a-zA-Z]/.test(token)) {
+    return "identifier";
   }
   if (/[0-9]/.test(token)) {
     return "number";
   }
-  if (/[a-zA-Z]/.test(token)) {
-    return "identifer";
+  if (token === "null") {
+    return "object";
+  }
+  if (token === "undefined") {
+    return "undefined";
   }
 };
-lexer(
-  "[value, '1a3',[12+'a',null,false,['11',[112233],{'easy' : ['hello', {'a':'a'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']"
-);
+
+module.exports = lexer;
