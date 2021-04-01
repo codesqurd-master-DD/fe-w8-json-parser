@@ -37,7 +37,7 @@ const tokenizer = (strs) => {
       const isApostrophe = checkApostrophe(char);
       const isSpace = checkSpace(char);
       if (isApostrophe) isString = changeStringStatus(isString);
-      if (isSpace === ' ' && !isString) continue;
+      if (isSpace && !isString) continue;
       stack += char;
     }
   }

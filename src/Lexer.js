@@ -13,6 +13,7 @@ const subTypeSet = {
 const lexer = (tokens) => {
   return tokens.map(classifyToken);
 };
+
 const classifyToken = (token) => {
   const type = getTokenType(token);
   return {
