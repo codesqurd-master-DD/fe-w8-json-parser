@@ -1,4 +1,5 @@
-const { DIVIDER } = require("./type.js");
+const DIVIDER = ["{", "}", "[", "]", ":", ",", "+", "-"];
+
 const tokenizer = (str) => {
   const result = [];
   let stack = "";
@@ -25,5 +26,6 @@ const tokenizer = (str) => {
   }
   return result;
 };
+const isDivider = (char) => {};
 
 module.exports = tokenizer;
