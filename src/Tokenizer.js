@@ -1,4 +1,4 @@
-const DIVIDER = ['{', '}', '[', ']', ':', ',', '+', '-'];
+const DIVIDER = ["{", "}", "[", "]", ":", ",", "+", "-"];
 
 const checkDivider = (char) => DIVIDER.includes(char);
 
@@ -9,15 +9,15 @@ const changeStringStatus = (stringStatus) => {
   return true;
 };
 
-const checkSpace = (char) => char === ' ';
+const checkSpace = (char) => char === " ";
 
-const resetValue = () => '';
+const resetValue = () => "";
 
 const pushParameter = (result, args) => result.push(args);
 
 const tokenizer = (strs) => {
   const result = [];
-  let stack = '';
+  let stack = "";
   let isString = false;
 
   for (let i = 0; i < strs.length; i++) {
@@ -28,7 +28,7 @@ const tokenizer = (strs) => {
       if (isString) stack += char;
       if (!isString) {
         stack.length > 0 ? pushParameter(result, stack) : resetValue();
-        char !== ',' ? pushParameter(result, char) : resetValue();
+        char !== "," ? pushParameter(result, char) : resetValue();
         stack = resetValue();
       }
     }
@@ -37,7 +37,7 @@ const tokenizer = (strs) => {
       const isApostrophe = checkApostrophe(char);
       const isSpace = checkSpace(char);
       if (isApostrophe) isString = changeStringStatus(isString);
-      if (isSpace === ' ' && !isString) continue;
+      if (isSpace && !isString) continue;
       stack += char;
     }
   }
