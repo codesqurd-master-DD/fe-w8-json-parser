@@ -1,31 +1,47 @@
-const DIVIDER = ["{", "}", "[", "]", ":", ",", "+", "-"];
+const DIVIDER = ['{', '}', '[', ']', ':', ',', '+', '-'];
 
-const tokenizer = (str) => {
+const checkDivider = (char) => DIVIDER.includes(char);
+
+const checkApostrophe = (char) => char === "'";
+
+const changeStringStatus = (stringStatus) => {
+  if (stringStatus) return false;
+  return true;
+};
+
+const checkSpace = (char) => char === ' ';
+
+const resetValue = () => '';
+
+const pushParameter = (result, args) => result.push(args);
+
+const tokenizer = (strs) => {
   const result = [];
-  let stack = "";
+  let stack = '';
   let isString = false;
 
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    if (DIVIDER.includes(char)) {
-      if (isString) {
-        stack += char;
-      } else {
-        stack.length > 0 ? result.push(stack) : "";
-        char !== "," ? result.push(char) : "";
-        stack = "";
+  for (let i = 0; i < strs.length; i++) {
+    const char = strs[i];
+    const isdivider = checkDivider(char);
+
+    if (isdivider) {
+      if (isString) stack += char;
+      if (!isString) {
+        stack.length > 0 ? pushParameter(result, stack) : resetValue();
+        char !== ',' ? pushParameter(result, char) : resetValue();
+        stack = resetValue();
       }
-    } else {
-      if (char === "'") {
-        isString = !isString;
-      } else if (char === " " && !isString) {
-        continue;
-      }
+    }
+
+    if (isdivider === false) {
+      const isApostrophe = checkApostrophe(char);
+      const isSpace = checkSpace(char);
+      if (isApostrophe) isString = changeStringStatus(isString);
+      if (isSpace === ' ' && !isString) continue;
       stack += char;
     }
   }
   return result;
 };
-const isDivider = (char) => {};
 
 module.exports = tokenizer;
