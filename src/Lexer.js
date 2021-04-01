@@ -7,6 +7,7 @@ const subTypeSet = {
   "{": "open",
   "]": "close",
   "}": "close",
+  ":": "prop",
 };
 
 const lexer = (tokens) => {

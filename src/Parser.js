@@ -16,26 +16,32 @@ const parser = (list) => {
 
   const parentNode = { type: openType, child: [] };
   let objSet = setObjectProperty();
+  let prev = [];
   while (list.length > 0) {
     const { type, value, subType } = list[0];
-
+    console.log(list[0]);
     if (isOpen(subType)) parentNode.child.push(parser(list));
     else if (isClose(subType)) {
       list.shift();
       return parentNode;
     } else {
       if (isObject(openType)) {
-        if (isEmptyObjSet(objSet)) {
-          objSet.value.propKey = { type, value };
+        if (prev.length === 0) {
+          prev.push(list.shift());
+        } else if (isProps(subType)) {
+          const key = prev.pop();
+          objSet.value.propKey = { type: key.type, value: key.value };
           list.shift();
-        } else {
-          if (value === ":") {
+
+          const { nextType, nextValue, nextSubType } = list[0];
+
+          if (nextSubType) {
+            objSet.value.propValue = parser(list);
+          } else {
+            objSet.value.propValue = { type: nextType, value: nextValue };
             list.shift();
-            continue;
           }
-          objSet.value.propValue = subType ? parser(list) : { type, value };
           parentNode.child.push(objSet);
-          objSet = setObjectProperty();
         }
       } else if (isArray(openType)) {
         parentNode.child.push({ type, value });
@@ -52,6 +58,9 @@ const isOpen = (subType) => {
 };
 const isClose = (subType) => {
   return subType === "close";
+};
+const isProps = (subType) => {
+  return subType === "prop";
 };
 const isObject = (openType) => {
   return openType === "object";
