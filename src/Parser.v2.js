@@ -6,8 +6,6 @@ const setOfopenType = {
   "[": "array",
   "{": "object",
 };
-const string =
-  "['1a3',[null,false,['11',[112233],{'easy' : ['hello', {'a':'a', 'b' :'b'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']";
 
 const parser = (list) => {
   const opener = list.shift().value;
@@ -90,6 +88,10 @@ const setObjectProperty = () => {
   };
 };
 
+const string =
+  "['1a3',[null,false,['11',[112233],{'easy' : ['hello', {'a':'a', 'b' :'b'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']";
+
+
 const result = pipe(tokenizer, lexer, parser);
 const re = JSON.stringify(result(string), null, 2);
-console.log(re)
+console.log(re);
