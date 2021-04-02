@@ -44,4 +44,4 @@ const tokenizer = (strs) => {
   return result;
 };
 
-module.exports = tokenizer;
+export default tokenizer;

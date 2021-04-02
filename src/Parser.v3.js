@@ -1,7 +1,3 @@
-const tokenizer = require("./Tokenizer.js");
-const lexer = require("./Lexer.js");
-const pipe = (...fns) => (arg) => fns.reduce((arg, fn) => fn(arg), arg);
-
 const setOfopenType = {
   "[": "array",
   "{": "object",
@@ -50,16 +46,19 @@ const isOpen = ({ parentNode, token, subType, list }) => {
   if (subType !== "open") return null;
   list.unshift(token);
   parentNode.child.push(parser(list));
-  return true;
+  return false;
 };
+
 const isClose = (subType) => {
   return subType === "close";
 };
+
 const isArray = ({ parentNode, token, openType }) => {
   if (openType !== "array") return null;
   parentNode.child.push(getElementSet(token));
   return true;
 };
+
 const isObject = ({ parentNode, token, openType, list, prev, subType }) => {
   if (openType !== "object") return null;
 
@@ -93,9 +92,4 @@ const setObjectProperty = () => {
   };
 };
 
-const string =
-  "['1a3',[null,false,['11',[112233],{'easy' : ['hello', {'a':'a', 'b' :'b'}, 'world']},112],55, '99'],{'a':'str', 'b':[912,[5656,33],{'key' : 'inner value', 'newkeys': [1,2,3,4,5]}]}, true, 'a']";
-
-const DDQ_parser = pipe(tokenizer, lexer, parser);
-const result = JSON.stringify(DDQ_parser(string), null, 2);
-console.log(result);
+export default parser;

@@ -1,3 +1,32 @@
-h1 {
-  font-size: 70px;
+* {
+  margin: 0;
+  padding: 0;
+}
+#wrap {
+  display: flex;
+  width: 80%;
+  margin: 100px auto;
+  justify-content: space-between;
+}
+
+.inputBox {
+  width: 45%;
+  textarea {
+    width: 100%;
+    height: 30rem;
+  }
+  button {
+    width: 100%;
+    height: 2rem;
+  }
+}
+
+.resultBox {
+  width: 45%;
+
+  pre {
+    border: 1px solid black;
+    min-height: 30rem;
+    width: 100%;
+  }
 }
